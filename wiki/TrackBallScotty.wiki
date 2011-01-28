@@ -8,7 +8,7 @@ Mirroring the original GNU enabled [http://scott.yang.id.au/code/trackback-em-al
 
 = Details =
 
-Scotty has a [svn.fucoder.com/fucoder/trackback-em-all/ SubversionRepository]
+Scotty has a SubversionRepository:svn.fucoder.com/fucoder/trackback-em-all/ 
 
 ==About==
 
