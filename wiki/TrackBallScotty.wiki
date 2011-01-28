@@ -1,0 +1,96 @@
+#summary Scotty's Trackball Python script tball.py
+#labels Phase-Deploy
+
+= Introduction =
+
+Mirroring the original GNU enabled [http://scott.yang.id.au/code/trackback-em-all/ tball] page.
+
+
+= Details =
+
+Scotty has a [svn.fucoder.com/fucoder/trackback-em-all/ SubversionRepository]
+
+==About==
+
+Trackback ‘em All is a command line tool that download RSS/Atom feeds, and send either trackback or pingback to all linked URLs. It is useful when run against your websites/blogsites periodically and
+  # You do not want your blog software to slow down sending trackbacks and pingbacks (for example, WordPress).
+  # Your blog software does not always send trackbacks properly (in my experience, Drupal).
+  # Your blog software does not support pingbacks, thus unable to send notification to sites that only accept pingbacks (for example, Movable Type).
+  # Your blog software supports neither trackback nor pingback. D’oh. (for example, Blogger)
+
+Trackback ‘em All keeps its own database of feeds to fetch, feed items already processed, URLs already notified, etc, and can be used in parallel to your blog or CMS software, as long as full RSS/Atom feeds are available.
+
+
+== Requirement ==
+
+To use Trackback ‘em All, you will need
+  * Python 2.4+
+  * Universal Feedparser
+
+Currently, Trackback ‘em All uses Python’s anydbm module as database backend. An SQLite based backend will be implemented in the future as more people move to Python 2.5.
+
+
+== Usage ==
+
+Trackback ‘em All only has one single script, tball.py. Execute it with -h argument to bring out the help.
+
+The script basically runs in two modes — add/delete/list and fetch. It keeps its database in ~/.tball.db by default, but you can specify an alternate database by using the -d DBFILE argument.
+===Add a New Feed===
+To add a new feed to the database,
+$ ./tball.py -A http://yoursite/rss.xml
+
+You can supply multiple -A URL arguments to add multiple feeds. You cannot add feeds that already exist in the database.
+===Delete an Existing Feed===
+To delete an existing feed from the database,
+$ ./tball.py -D http://yoursite/rss.xml
+
+You can also supply multiple -D URL to delete multiple feeds from the database. Note that feed-related data (feed entries, pingback/trackback records) might not be deleted from the database. See TODO.
+===Listing All Existing Feeds===
+To list all the feeds in the database,
+$ ./tball.py -L
+
+Useful to keep track the sites you are fetching the feeds from.
+Fetching Feeds and Send Pingbacks/Trackbacks
+
+Now with a few sites in the database, to fetch the feeds and process the entries, you can simply do
+$ ./tball.py
+Feb 28 13:05:04: process entry http://first-site/blog/first-post
+Feb 28 13:05:05: check external link http://linked-site/blog/linked-article/
+Feb 28 13:05:07: send pingback http://linked-site/blog/pingback.php
+Feb 28 13:05:08: check external link http://linked-site/blog/linked-article-2/
+Feb 28 13:05:09: ...
+
+What it does is (in pseudo code):
+  * For “feed” in all feeds in database 
+  * Fetch “feed”
+  * For “entry” in all entries in “feed” 
+  * For “URL” in all external links in “entry” 
+  * Send pingback if pingback is supported, otherwise
+  * Send trackback if trackback is supported
+
+You can use -q to reduce the noise in output, or -v to increase the verbose level. You can also use -p to change to “pretend mode”, where all feeds and entries will be fetched, pingback/trackback URLs determined, but the actual pingback/trackback will not be sent.
+
+It is also possible to run Trackback ‘em All in multi-threaded mode, where feed fetching and pingback/trackback sending will be done in parallel when multiple feeds are processed. Use -t THREADS to specify the number of threads you want to create. For example,
+$ ./tball.py -t 5
+
+to start Trackback ‘em All with 5 threads, which is useful when you have 5+ feeds that you want to process.
+===Running It Periodically===
+
+Trackback ‘em All is only useful when you run it periodically to process new entries in your feeds. It is trivial on Unix/Linux based systems as cron is widely supported. Personally I run it once every hour against all my blogs. Here is my crontab entry:
+15 * * * * /home/scotty/fucoder/trackback-em-all/tball.py -q
+==To-Do==
+
+Features still need to be implemented.
+Trimming the database. Currently it keeps all records in the database, and each record has a timestamp against it. However old records are never deleted.
+==Support==
+
+Please post your support issues to my support forum detailing your situation, i.e. what is not working, Python traceback, etc.
+History
+0.2 (2009-11-27)
+Use hashlib instead of md5 so no warning on Python2.6
+0.1 (2007-02-28)
+Initial release — “it is working for me” so please test it out :)
+==License==
+
+GNU General Public License
+Wed, 28 February 2007 5:23 pm
